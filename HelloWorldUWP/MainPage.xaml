@@ -1,0 +1,166 @@
+<Page
+    x:Class="HelloWorldUWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HelloWorldUWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <SplitView x:Name="RootSplitView" 
+               DisplayMode="Overlay" 
+               IsPaneOpen="False" 
+               OpenPaneLength="260">
+        
+        <!-- Navigation Drawer (Pane) -->
+        <SplitView.Pane>
+            <Grid x:Name="PaneRootGrid"
+                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                  ManipulationMode="TranslateX"
+                  ManipulationDelta="Pane_ManipulationDelta"
+                  ManipulationCompleted="Pane_ManipulationCompleted">
+                <Grid.RowDefinitions>
+                    <!-- Header Banner -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Module List -->
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- UdS Header Banner -->
+                <Border Grid.Row="0" Background="#002D5A" Padding="16,16,16,16">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Official UdS Athena Owl Icon -->
+                        <Image Source="ms-appx:///Assets/owl_white.png" 
+                               Width="44" 
+                               Height="48" 
+                               Margin="0,0,14,0" 
+                               VerticalAlignment="Center"/>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Saarland Uni" 
+                                       FontSize="19" 
+                                       FontWeight="Bold" 
+                                       Foreground="White" 
+                                       Margin="0,0,0,2"/>
+                            <TextBlock Text="Universität des Saarlandes" 
+                                       FontSize="11" 
+                                       Foreground="#A0C8F0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Module Navigation List -->
+                <ListView x:Name="NavListView" 
+                          Grid.Row="1" 
+                          SelectionMode="Single" 
+                          SelectionChanged="NavListView_SelectionChanged"
+                          Padding="0,8,0,8">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="MinHeight" Value="48"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="12,10,12,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Grid.Column="0" 
+                                          Glyph="{Binding IconGlyph}" 
+                                          FontSize="18" 
+                                          Foreground="{ThemeResource SystemControlHighlightAccentBrush}" 
+                                          Margin="0,0,16,0" 
+                                          VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" 
+                                           Text="{Binding Title}" 
+                                           FontSize="15" 
+                                           FontWeight="SemiBold" 
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </SplitView.Pane>
+
+        <!-- Main Shell Content -->
+        <SplitView.Content>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- Top Navigation Bar -->
+                    <RowDefinition Height="48"/>
+                    <!-- Active Module Page Frame -->
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Top App Bar with Hamburger -->
+                <Border x:Name="TopAppBarBorder"
+                        Grid.Row="0" 
+                        Background="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" 
+                        BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}" 
+                        BorderThickness="0,0,0,1"
+                        ManipulationMode="TranslateX"
+                        ManipulationDelta="TopAppBar_ManipulationDelta"
+                        ManipulationCompleted="TopAppBar_ManipulationCompleted">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Hamburger Toggle Button -->
+                        <Button x:Name="HamburgerButton" 
+                                Grid.Column="0" 
+                                Width="48" 
+                                Height="48" 
+                                Background="Transparent" 
+                                BorderThickness="0" 
+                                Click="HamburgerButton_Click">
+                            <FontIcon Glyph="&#xE700;" FontSize="18"/>
+                        </Button>
+
+                        <!-- Mini UdS Owl Badge in Header -->
+                        <Border Grid.Column="1" 
+                                Background="#002D5A" 
+                                CornerRadius="4" 
+                                Width="28" 
+                                Height="28" 
+                                Padding="3" 
+                                Margin="0,0,8,0" 
+                                VerticalAlignment="Center">
+                            <Image Source="ms-appx:///Assets/owl_white.png" Stretch="Uniform"/>
+                        </Border>
+
+                        <!-- Active Module Title -->
+                        <TextBlock x:Name="ModuleTitleText" 
+                                   Grid.Column="2" 
+                                   Text="Saarland Uni" 
+                                   FontSize="17" 
+                                   FontWeight="SemiBold" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,12,0"/>
+                    </Grid>
+                </Border>
+
+                <!-- Embedded Module Content -->
+                <Frame x:Name="ContentFrame" Grid.Row="1"/>
+
+                <!-- Left Edge Gesture Touch Strip (Swipe Right to Open Drawer) -->
+                <Border x:Name="LeftEdgeGestureStrip" 
+                        Grid.Row="1"
+                        Width="28"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Background="Transparent"
+                        ManipulationMode="TranslateX"
+                        ManipulationDelta="EdgeGesture_ManipulationDelta"
+                        ManipulationCompleted="EdgeGesture_ManipulationCompleted"/>
+            </Grid>
+        </SplitView.Content>
+    </SplitView>
+</Page>

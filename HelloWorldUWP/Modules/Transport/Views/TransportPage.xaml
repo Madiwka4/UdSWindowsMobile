@@ -1,0 +1,502 @@
+<Page
+    x:Class="HelloWorldUWP.Modules.Transport.Views.TransportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:HelloWorldUWP.Modules.Transport.Views"
+    xmlns:converters="using:HelloWorldUWP.Modules.Transport.Converters"
+    xmlns:models="using:HelloWorldUWP.Modules.Transport.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:HexToBrushConverter x:Key="HexToBrush" />
+        <converters:NullOrEmptyToVisibilityConverter x:Key="NullOrEmptyToVis" />
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Search & Control Header Card -->
+            <RowDefinition Height="Auto" />
+            <!-- Connection List & Status Area -->
+            <RowDefinition Height="*" />
+            <!-- Bottom CommandBar -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Search & Control Card (Dark & Light Theme Aware) -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource TransportCardBackgroundBrush}"
+                BorderBrush="{ThemeResource TransportCardBorderBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="16,12,16,12">
+            <StackPanel>
+                <!-- Title Header & Actions (with Reload Button) -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Bus Departures"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{ThemeResource TransportHeaderTitleBrush}" />
+                        <TextBlock Text="Live schedules • Saarbrücken campus lines"
+                                   FontSize="11"
+                                   Foreground="{ThemeResource TransportSubtextBrush}" />
+                    </StackPanel>
+
+                    <!-- Top Action Controls: Direct Only Checkbox & Reload Button -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox x:Name="DirectOnlyCheckBox"
+                                  Content="Direct"
+                                  FontSize="12"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,8,0"
+                                  Click="DirectOnlyCheckBox_Click" />
+
+                        <!-- Prominent Header Reload Button -->
+                        <Button x:Name="HeaderReloadButton"
+                                Click="ReloadButton_Click"
+                                Background="{ThemeResource TransportButtonBackgroundBrush}"
+                                BorderBrush="{ThemeResource TransportButtonBorderBrush}"
+                                BorderThickness="1"
+                                Padding="9,5,9,5"
+                                ToolTipService.ToolTip="Reload bus schedules">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                          Glyph="&#xE72C;"
+                                          FontSize="12"
+                                          Foreground="{ThemeResource TransportButtonForegroundBrush}"
+                                          Margin="0,0,4,0" />
+                                <TextBlock Text="Reload"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TransportButtonForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Input Fields & Central Swap Button -->
+                <Grid Margin="0,4,0,4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <!-- From Input Field -->
+                    <Grid Grid.Row="0">
+                        <AutoSuggestBox x:Name="FromAutoSuggestBox"
+                                        Header="From"
+                                        PlaceholderText="Origin stop (e.g. Haus der Zukunft)"
+                                        Text="Haus der Zukunft"
+                                        FontSize="14"
+                                        TextChanged="FromAutoSuggestBox_TextChanged"
+                                        SuggestionChosen="FromAutoSuggestBox_SuggestionChosen"
+                                        QuerySubmitted="FromAutoSuggestBox_QuerySubmitted" />
+                    </Grid>
+
+                    <!-- Swap Button in the Middle -->
+                    <Grid Grid.Row="1" Margin="0,4,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left decorative line -->
+                        <Border Grid.Column="0"
+                                Height="1"
+                                Background="{ThemeResource TransportDividerBrush}"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0" />
+
+                        <!-- Central Swap Button -->
+                        <Button x:Name="SwapButton"
+                                Grid.Column="1"
+                                Click="SwapButton_Click"
+                                Background="{ThemeResource TransportButtonBackgroundBrush}"
+                                BorderBrush="{ThemeResource TransportButtonBorderBrush}"
+                                BorderThickness="1"
+                                Padding="12,4,12,4"
+                                ToolTipService.ToolTip="Swap origin and destination">
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                          Glyph="&#xE8AB;"
+                                          FontSize="13"
+                                          Foreground="{ThemeResource TransportButtonForegroundBrush}"
+                                          Margin="0,0,6,0" />
+                                <TextBlock Text="Swap"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="{ThemeResource TransportButtonForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Right decorative line -->
+                        <Border Grid.Column="2"
+                                Height="1"
+                                Background="{ThemeResource TransportDividerBrush}"
+                                VerticalAlignment="Center"
+                                Margin="8,0,0,0" />
+                    </Grid>
+
+                    <!-- To Input Field -->
+                    <Grid Grid.Row="2">
+                        <AutoSuggestBox x:Name="ToAutoSuggestBox"
+                                        Header="To"
+                                        PlaceholderText="Destination stop (e.g. University Mensa)"
+                                        Text="University Mensa"
+                                        FontSize="14"
+                                        TextChanged="ToAutoSuggestBox_TextChanged"
+                                        SuggestionChosen="ToAutoSuggestBox_SuggestionChosen"
+                                        QuerySubmitted="ToAutoSuggestBox_QuerySubmitted" />
+                    </Grid>
+                </Grid>
+
+                <!-- Live Status Row -->
+                <Grid Margin="0,6,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Width="7" Height="7" Fill="#107C41" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock x:Name="LiveTimerStatusText"
+                                   Text="Live tracking active"
+                                   FontSize="11"
+                                   Foreground="#107C41"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock x:Name="LastUpdatedText"
+                               Grid.Column="1"
+                               Text="Ready"
+                               FontSize="11"
+                               Foreground="{ThemeResource TransportSubtextBrush}"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <!-- Loading Indicator -->
+            <StackPanel x:Name="LoadingPanel"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Margin="24">
+                <ProgressRing IsActive="True"
+                              Width="44"
+                              Height="44"
+                              Foreground="{ThemeResource SystemControlHighlightAccentBrush}"
+                              HorizontalAlignment="Center" />
+                <TextBlock Text="Loading live bus schedules..."
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TransportPrimaryTextBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,14,0,4" />
+                <TextBlock Text="Connecting to Transitous routing service..."
+                           FontSize="12"
+                           Foreground="{ThemeResource TransportSubtextBrush}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Error State -->
+            <StackPanel x:Name="ErrorPanel"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Margin="24">
+                <FontIcon FontFamily="Segoe MDL2 Assets"
+                          Glyph="&#xE783;"
+                          FontSize="42"
+                          Foreground="#E81123"
+                          HorizontalAlignment="Center" />
+                <TextBlock Text="Unable to load bus data"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TransportPrimaryTextBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,4" />
+                <TextBlock x:Name="ErrorMessageText"
+                           Text="Please check your internet connection."
+                           FontSize="12"
+                           Foreground="{ThemeResource TransportSubtextBrush}"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="280"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,16" />
+                <Button Content="Try Again"
+                        Click="ReloadButton_Click"
+                        Background="{ThemeResource SystemControlHighlightAccentBrush}"
+                        Foreground="#FFFFFF"
+                        HorizontalAlignment="Center"
+                        Padding="16,6,16,6" />
+            </StackPanel>
+
+            <!-- Empty State -->
+            <StackPanel x:Name="EmptyPanel"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed"
+                        Margin="24">
+                <FontIcon FontFamily="Segoe MDL2 Assets"
+                          Glyph="&#xE7C0;"
+                          FontSize="42"
+                          Foreground="{ThemeResource TransportSubtextBrush}"
+                          HorizontalAlignment="Center" />
+                <TextBlock Text="No upcoming departures found"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           Foreground="{ThemeResource TransportPrimaryTextBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,4" />
+                <TextBlock Text="Try swapping directions or selecting a different stop."
+                           FontSize="12"
+                           Foreground="{ThemeResource TransportSubtextBrush}"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="280"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Connections List -->
+            <ListView x:Name="ConnectionsListView"
+                      SelectionMode="None"
+                      Padding="12,12,12,24"
+                      ShowsScrollingPlaceholders="False">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0,0,0,12" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:BusConnection">
+                        <Border Background="{ThemeResource TransportCardBackgroundBrush}"
+                                CornerRadius="8"
+                                BorderBrush="{ThemeResource TransportCardBorderBrush}"
+                                BorderThickness="1"
+                                Padding="14">
+                            <StackPanel>
+                                <!-- Top Row: Line Badge, Headsign, Direct Badge -->
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Bus Line Badge -->
+                                    <Border Grid.Column="0"
+                                            Background="{x:Bind RouteColor, Converter={StaticResource HexToBrush}}"
+                                            CornerRadius="4"
+                                            Padding="8,3,8,3"
+                                            VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                      Glyph="&#xE787;"
+                                                      FontSize="11"
+                                                      Foreground="{x:Bind RouteTextColor, Converter={StaticResource HexToBrush}}"
+                                                      Margin="0,0,4,0" />
+                                            <TextBlock Text="{x:Bind LineNumber}"
+                                                       FontWeight="Bold"
+                                                       FontSize="13"
+                                                       Foreground="{x:Bind RouteTextColor, Converter={StaticResource HexToBrush}}" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Destination Headsign -->
+                                    <StackPanel Grid.Column="1"
+                                                Margin="10,0,8,0"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Headsign}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="14"
+                                                   Foreground="{ThemeResource TransportPrimaryTextBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   MaxLines="1" />
+                                        <TextBlock Text="{x:Bind AgencyName}"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource TransportSubtextBrush}" />
+                                    </StackPanel>
+
+                                    <!-- Status / Direct Badge -->
+                                    <Border Grid.Column="2"
+                                            Background="{x:Bind StatusColor, Converter={StaticResource HexToBrush}}"
+                                            CornerRadius="10"
+                                            Padding="8,2,8,2"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind StatusBadge}"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="#FFFFFF" />
+                                    </Border>
+                                </Grid>
+
+                                <!-- Time & Route Details Row -->
+                                <Grid Margin="0,2,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Departure Time -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{x:Bind DepartureTimeFormatted}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{ThemeResource TransportPrimaryTextBrush}" />
+                                        <TextBlock Text="{x:Bind FromStopName}"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource TransportSubtextBrush}"
+                                                   MaxWidth="90"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <!-- Arrow Icon -->
+                                    <FontIcon Grid.Column="1"
+                                              FontFamily="Segoe MDL2 Assets"
+                                              Glyph="&#xE76C;"
+                                              FontSize="12"
+                                              Foreground="{ThemeResource TransportSubtextBrush}"
+                                              VerticalAlignment="Center"
+                                              Margin="12,0,12,12" />
+
+                                    <!-- Arrival Time -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{x:Bind ArrivalTimeFormatted}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{ThemeResource TransportPrimaryTextBrush}" />
+                                        <TextBlock Text="{x:Bind ToStopName}"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource TransportSubtextBrush}"
+                                                   MaxWidth="90"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <!-- Spacing -->
+                                    <Border Grid.Column="3" />
+
+                                    <!-- Duration & Real-time Delay -->
+                                    <StackPanel Grid.Column="4"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind DurationText}"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{ThemeResource TransportPrimaryTextBrush}"
+                                                   HorizontalAlignment="Right" />
+                                        <TextBlock Text="{x:Bind DelayText}"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{x:Bind DelayColor, Converter={StaticResource HexToBrush}}"
+                                                   HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Visual Representation of Progress Based on Timer -->
+                                <Border Background="{ThemeResource TransportInnerBoxBackgroundBrush}"
+                                        BorderBrush="{ThemeResource TransportInnerBoxBorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="10,8,10,8">
+                                    <StackPanel>
+                                        <!-- Timer Header Row: Countdown & Live Status -->
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Countdown Text -->
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                                <FontIcon FontFamily="Segoe MDL2 Assets"
+                                                          Glyph="&#xE916;"
+                                                          FontSize="11"
+                                                          Foreground="{x:Bind StatusColor, Converter={StaticResource HexToBrush}}"
+                                                          VerticalAlignment="Center"
+                                                          Margin="0,0,6,0" />
+                                                <TextBlock Text="{x:Bind CountdownText}"
+                                                           FontSize="12"
+                                                           FontWeight="Bold"
+                                                           Foreground="{x:Bind StatusColor, Converter={StaticResource HexToBrush}}" />
+                                            </StackPanel>
+
+                                            <!-- Transfers count -->
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{x:Bind TransfersText}"
+                                                       FontSize="11"
+                                                       Foreground="{ThemeResource TransportSubtextBrush}"
+                                                       FontWeight="SemiBold" />
+                                        </Grid>
+
+                                        <!-- Progress Bar -->
+                                        <ProgressBar Value="{x:Bind ProgressPercent}"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Height="7"
+                                                     Foreground="{x:Bind StatusColor, Converter={StaticResource HexToBrush}}"
+                                                     Background="{ThemeResource TransportProgressBarBackgroundBrush}"
+                                                     Margin="0,2,0,4" />
+
+                                        <!-- Progress Subtitle / Stop Indicator -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{x:Bind ProgressLabel}"
+                                                       FontSize="10"
+                                                       Foreground="{ThemeResource TransportSubtextBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{x:Bind IntermediateStopsSummary}"
+                                                       FontSize="10"
+                                                       Foreground="{ThemeResource TransportSubtextBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="130" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!-- Bottom CommandBar (Follows System Dark/Light Theme) -->
+        <CommandBar Grid.Row="2"
+                    BorderThickness="0,1,0,0">
+            <AppBarButton Icon="Refresh"
+                          Label="Reload"
+                          Click="ReloadButton_Click" />
+            <AppBarButton Label="Swap"
+                          Click="SwapAppBarButton_Click">
+                <AppBarButton.Icon>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8AB;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Label="About Open Transit Data"
+                              Click="AboutAppBarButton_Click" />
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Grid>
+</Page>
